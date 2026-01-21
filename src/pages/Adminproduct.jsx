@@ -39,7 +39,7 @@ const Adminproduct = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`https://cutesy-store-backend.onrender.com/api/products/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
