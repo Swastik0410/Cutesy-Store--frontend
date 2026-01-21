@@ -40,7 +40,7 @@ const AdminEditProduct = () => {
       const token = localStorage.getItem("adminToken");
 
       await axios.put(
-        `http://localhost:5000/api/products/${product._id}`,
+        `https://cutesy-store-backend.onrender.com/api/products/${product._id}`,
         formData,
         {
           headers: {

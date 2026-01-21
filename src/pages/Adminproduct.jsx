@@ -18,7 +18,7 @@ const Adminproduct = () => {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/products");
+      const res = await axios.get("https://cutesy-store-backend.onrender.com/api/products");
       setProducts(res.data.data);
     } catch (err) {
       showNotification("❌ Failed to fetch products");

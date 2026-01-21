@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products");
+        const res = await axios.get("https://cutesy-store-backend.onrender.com/api/products");
         setProducts(res.data.data);
       } catch (err) {
         console.error("Failed to fetch products", err);
