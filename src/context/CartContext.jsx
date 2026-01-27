@@ -19,27 +19,37 @@ export function CartProvider({ children }) {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // ➕ Add item to cart
+  // ➕ Add item to cart (NORMALIZED)
   const addToCart = (product, quantity = 1) => {
     if (!product?._id) {
       console.warn("Product missing _id:", product);
       return;
     }
 
+    // 🔥 Normalize images (VERY IMPORTANT)
+    const normalizedProduct = {
+      ...product,
+      images: product.images?.length
+        ? product.images
+        : product.image
+        ? [product.image]
+        : [],
+    };
+
     setCartItems((prev) => {
       const existingItem = prev.find(
-        (item) => item._id === product._id
+        (item) => item._id === normalizedProduct._id
       );
 
       if (existingItem) {
         return prev.map((item) =>
-          item._id === product._id
+          item._id === normalizedProduct._id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
 
-      return [...prev, { ...product, quantity }];
+      return [...prev, { ...normalizedProduct, quantity }];
     });
   };
 
