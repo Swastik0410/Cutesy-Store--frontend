@@ -35,7 +35,6 @@ export default function CartPage() {
 
     window.open(url, "_blank");
 
-    // Clear cart after sending order
     clearCart();
   };
 
@@ -60,10 +59,12 @@ export default function CartPage() {
                 key={item._id}
                 className="flex justify-between items-center bg-(--ivory) p-4 rounded-2xl shadow"
               >
-                {/* Product info */}
+                {/* Product Info */}
                 <div className="flex items-center gap-4">
                   <img
-                    src={item.image}
+                    src={
+                      item.images?.[0] || item.image || "/placeholder.png"
+                    }
                     alt={item.name}
                     className="w-16 h-16 object-cover rounded-xl"
                   />
@@ -79,7 +80,7 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {/* Quantity controls */}
+                {/* Quantity Controls */}
                 <div className="flex items-center gap-2">
                   <button
                     disabled={item.quantity === 1}
@@ -107,7 +108,7 @@ export default function CartPage() {
                     +
                   </button>
 
-                  {/* Remove single item */}
+                  {/* Remove Item */}
                   <button
                     onClick={() => removeFromCart(item._id)}
                     className="text-red-500 ml-2 font-bold"
