@@ -61,13 +61,12 @@ export default function CartPage() {
               >
                 {/* Product Info */}
                 <div className="flex items-center gap-4">
-                  <img
-                    src={
-                      item.images[0] 
-                    }
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded-xl"
-                  />
+                 <img
+  src={item.images?.[0]?.url || "/placeholder.jpg"} // fallback image
+  alt={item.name}
+  className="w-16 h-16 object-cover rounded-xl"
+/>
+
 
                   <div>
                     <h2 className="text-(--rose) text-lg font-medium">
