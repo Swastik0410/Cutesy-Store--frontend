@@ -18,7 +18,9 @@ const Adminproduct = () => {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("https://cutesy-store-backend.onrender.com/api/products");
+      const res = await axios.get(
+        "https://cutesy-store-backend.onrender.com/api/products"
+      );
       setProducts(res.data.data);
     } catch (err) {
       showNotification("❌ Failed to fetch products");
@@ -39,11 +41,14 @@ const Adminproduct = () => {
     try {
       const token = localStorage.getItem("adminToken");
 
-      await axios.delete(`https://cutesy-store-backend.onrender.com/api/products/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `https://cutesy-store-backend.onrender.com/api/products/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setProducts((prev) => prev.filter((p) => p._id !== id));
       showNotification("🗑️ Product deleted successfully");
@@ -83,9 +88,7 @@ const Adminproduct = () => {
         </div>
 
         {/* Loading */}
-        {loading && (
-          <p className="text-(--brown)">Loading products...</p>
-        )}
+        {loading && <p className="text-(--brown)">Loading products...</p>}
 
         {/* Product list */}
         <div className="space-y-3">
@@ -96,7 +99,7 @@ const Adminproduct = () => {
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={product.image}
+                  src={product.images?.[0]?.url}
                   alt={product.name}
                   className="w-14 h-14 rounded-lg object-cover"
                 />

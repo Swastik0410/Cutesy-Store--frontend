@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 export default function ProductCard({ product }) {
   const navigate = useNavigate();
 
+  // Safely pick first image
+  const coverImage =
+    product.images && product.images.length > 0
+      ? product.images[0].url
+      : "";
+
   return (
     <div
       onClick={() => navigate(`/product/${product._id}`)}
@@ -20,19 +26,21 @@ export default function ProductCard({ product }) {
     >
       <div className="relative">
         <img
-          src={product.image}
+          src={coverImage}
           alt={product.name}
           className="w-full object-cover rounded-t-2xl"
         />
+
         <div className="absolute top-3 right-3 bg-white/80 backdrop-blur rounded-full px-2 py-1 text-xs text-(--rose)">
           ♥
         </div>
       </div>
 
       <div className="px-4 py-3">
-        <h3 className="text-(--rose) text-sm md:text-base font-medium leading-snug">
+        <h3 className="text-(--rose) text-sm md:text-base font-medium leading-snug line-clamp-2">
           {product.name}
         </h3>
+
         <p className="text-(--brown) text-sm mt-1">
           ₹{product.price}
         </p>

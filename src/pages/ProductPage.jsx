@@ -9,6 +9,7 @@ export default function ProductPage() {
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
+  const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showAlert, setShowAlert] = useState(false);
@@ -16,8 +17,11 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`https://cutesy-store-backend.onrender.com/api/products/${id}`);
+        const res = await axios.get(
+          `https://cutesy-store-backend.onrender.com/api/products/${id}`
+        );
         setProduct(res.data.data);
+        setActiveImage(0);
       } catch (err) {
         setError("Product not found");
       } finally {
@@ -34,6 +38,7 @@ export default function ProductPage() {
     setTimeout(() => setShowAlert(false), 2000);
   };
 
+  // ================= LOADING =================
   if (loading)
     return (
       <>
@@ -44,6 +49,7 @@ export default function ProductPage() {
       </>
     );
 
+  // ================= ERROR =================
   if (error || !product)
     return (
       <>
@@ -67,18 +73,43 @@ export default function ProductPage() {
 
       <main className="pt-28 pb-40 md:pb-24 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-14">
-          {/* Product Image */}
+          {/* ================= PRODUCT IMAGES ================= */}
           <div className="flex-1">
-            <div className="aspect-square overflow-hidden rounded-3xl shadow-lg">
+            {/* Main Image */}
+            <div className="aspect-square overflow-hidden rounded-3xl shadow-lg mb-4">
               <img
-                src={product.image}
+                src={product.images[activeImage].url}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
             </div>
+
+            {/* Thumbnails */}
+            {product.images.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {product.images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImage(index)}
+                    className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition
+                      ${
+                        activeImage === index
+                          ? "border-(--rose)"
+                          : "border-transparent opacity-70"
+                      }`}
+                  >
+                    <img
+                      src={img.url}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Product Info */}
+          {/* ================= PRODUCT INFO ================= */}
           <div className="flex-1 flex flex-col justify-between min-h-[420px]">
             <div>
               <h1
@@ -94,7 +125,7 @@ export default function ProductPage() {
 
               <div className="w-full h-px bg-(--brown)/20 my-4" />
 
-              <p className="text-(--brown) text-base sm:text-lg md:text-base leading-relaxed line-clamp-4">
+              <p className="text-(--brown) text-base sm:text-lg md:text-base leading-relaxed">
                 {product.description}
               </p>
             </div>
@@ -112,7 +143,7 @@ export default function ProductPage() {
         </div>
       </main>
 
-      {/* Mobile Add to Cart */}
+      {/* ================= MOBILE ADD TO CART ================= */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm p-4 shadow-t">
         <button
           onClick={handleAddToCart}

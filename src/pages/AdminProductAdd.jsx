@@ -9,8 +9,8 @@ const AdminAddProduct = () => {
     name: "",
     price: "",
     description: "",
-    image: null,
-    preview: "",
+    images: [],
+    previews: [],
   });
 
   const [notification, setNotification] = useState("");
@@ -20,25 +20,35 @@ const AdminAddProduct = () => {
     setTimeout(() => setNotification(""), 2500);
   };
 
+  // ================= IMAGE HANDLER =================
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+
+    if (files.length === 0) return;
+
+    if (files.length + product.images.length > 4) {
+      showNotification("❌ Maximum 4 images allowed");
+      return;
+    }
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
 
     setProduct((prev) => ({
       ...prev,
-      image: file,
-      preview: URL.createObjectURL(file),
+      images: [...prev.images, ...files],
+      previews: [...prev.previews, ...newPreviews],
     }));
   };
 
-  const removeImage = () => {
+  const removeImage = (index) => {
     setProduct((prev) => ({
       ...prev,
-      image: null,
-      preview: "",
+      images: prev.images.filter((_, i) => i !== index),
+      previews: prev.previews.filter((_, i) => i !== index),
     }));
   };
 
+  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -46,9 +56,9 @@ const AdminAddProduct = () => {
       !product.name ||
       !product.price ||
       !product.description ||
-      !product.image
+      product.images.length === 0
     ) {
-      showNotification("❌ Fill all fields");
+      showNotification("❌ Fill all fields (min 1 image)");
       return;
     }
 
@@ -57,20 +67,25 @@ const AdminAddProduct = () => {
       formData.append("name", product.name);
       formData.append("price", product.price);
       formData.append("description", product.description);
-      formData.append("image", product.image);
+
+      product.images.forEach((img) => {
+        formData.append("images", img);
+      });
 
       const token = localStorage.getItem("adminToken");
 
-      const res = await fetch("https://cutesy-store-backend.onrender.com/api/products", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        "https://cutesy-store-backend.onrender.com/api/products",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message);
 
       showNotification("✅ Product added");
@@ -79,8 +94,8 @@ const AdminAddProduct = () => {
         name: "",
         price: "",
         description: "",
-        image: null,
-        preview: "",
+        images: [],
+        previews: [],
       });
 
       setTimeout(() => navigate("/admin/products"), 800);
@@ -141,26 +156,35 @@ const AdminAddProduct = () => {
             className="w-full px-4 py-3 rounded-xl border resize-none"
           />
 
-          {!product.preview && (
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+          {/* IMAGE INPUT */}
+          {product.images.length < 4 && (
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+            />
           )}
 
-          {product.preview && (
-            <div className="relative w-24">
-              <img
-                src={product.preview}
-                alt="Preview"
-                className="w-24 h-24 rounded-xl object-cover"
-              />
-              <button
-                type="button"
-                onClick={removeImage}
-                className="absolute -top-2 -right-2 bg-(--rose) text-white w-6 h-6 rounded-full text-xs"
-              >
-                ✕
-              </button>
-            </div>
-          )}
+          {/* PREVIEWS */}
+          <div className="flex gap-3 flex-wrap">
+            {product.previews.map((src, index) => (
+              <div key={index} className="relative w-24 h-24">
+                <img
+                  src={src}
+                  alt="Preview"
+                  className="w-full h-full rounded-xl object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute -top-2 -right-2 bg-(--rose) text-white w-6 h-6 rounded-full text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
 
           <button
             type="submit"
