@@ -29,7 +29,7 @@ export default function Home() {
     if (!search.trim()) return products;
     const q = search.toLowerCase();
     return products.filter((p) =>
-      `${p.name} ${p.description}`.toLowerCase().includes(q)
+      `${p.name}`.toLowerCase().includes(q)
     );
   }, [products, search]);
 
