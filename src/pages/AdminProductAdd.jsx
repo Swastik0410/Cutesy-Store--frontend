@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const AdminAddProduct = () => {
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [product, setProduct] = useState({
     name: "",
@@ -49,60 +50,64 @@ const AdminAddProduct = () => {
   };
 
   // ================= SUBMIT =================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (
-      !product.name ||
-      !product.price ||
-      !product.description ||
-      product.images.length === 0
-    ) {
-      showNotification("❌ Fill all fields (min 1 image)");
-      return;
-    }
+  if (
+    !product.name ||
+    !product.price ||
+    !product.description ||
+    product.images.length === 0
+  ) {
+    showNotification("❌ Fill all fields (min 1 image)");
+    return;
+  }
 
-    try {
-      const formData = new FormData();
-      formData.append("name", product.name);
-      formData.append("price", product.price);
-      formData.append("description", product.description);
+  try {
+    setIsSubmitting(true);
 
-      product.images.forEach((img) => {
-        formData.append("images", img);
-      });
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("price", product.price);
+    formData.append("description", product.description);
 
-      const token = localStorage.getItem("adminToken");
+    product.images.forEach((img) => {
+      formData.append("images", img);
+    });
 
-      const res = await fetch(
-        "https://cutesy-store-backend.onrender.com/api/products",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+    const token = localStorage.getItem("adminToken");
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+    const res = await fetch(
+      "https://cutesy-store-backend.onrender.com/api/products",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
 
-      showNotification("✅ Product added");
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
 
-      setProduct({
-        name: "",
-        price: "",
-        description: "",
-        images: [],
-        previews: [],
-      });
+    showNotification("✅ Product added");
 
-      setTimeout(() => navigate("/admin/products"), 800);
-    } catch (err) {
-      showNotification(`❌ ${err.message}`);
-    }
-  };
+    setProduct({
+      name: "",
+      price: "",
+      description: "",
+      images: [],
+      previews: [],
+    });
+
+    setTimeout(() => navigate("/admin/products"), 800);
+  } catch (err) {
+    showNotification(`❌ ${err.message}`);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <>
@@ -186,12 +191,15 @@ const AdminAddProduct = () => {
             ))}
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-(--rose) text-white py-3 rounded-2xl"
-          >
-            Save Product
-          </button>
+<button
+  type="submit"
+  disabled={isSubmitting}
+  className={`w-full py-3 rounded-2xl text-white transition
+    ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-(--rose)"}`}
+>
+  {isSubmitting ? "Saving..." : "Save Product"}
+</button>
+
         </form>
       </main>
     </>
