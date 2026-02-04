@@ -8,34 +8,43 @@ const Admin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [notification, setNotification] = useState({ message: "", type: "" });
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
 
   const showNotification = (msg, type = "success") => {
     setNotification({ message: msg, type });
     setTimeout(() => setNotification({ message: "", type: "" }), 2500);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await fetch("https://cutesy-store-backend.onrender.com/api/auth/admin/login", {
+  try {
+    setIsLoggingIn(true);
+
+    const res = await fetch(
+      "https://cutesy-store-backend.onrender.com/api/auth/admin/login",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      });
+      }
+    );
 
-      const data = await res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
 
-      if (!res.ok) throw new Error(data.message);
+    localStorage.setItem("adminToken", data.token);
+    showNotification("✅ Admin logged in successfully", "success");
 
-      localStorage.setItem("adminToken", data.token);
-      showNotification("✅ Admin logged in successfully", "success");
+    setTimeout(() => navigate("/admin/products"), 1000);
+  } catch (err) {
+    showNotification(`❌ ${err.message}`, "error");
+  } finally {
+    setIsLoggingIn(false);
+  }
+};
 
-      setTimeout(() => navigate("/admin/products"), 1000);
-    } catch (err) {
-      showNotification(`❌ ${err.message}`, "error");
-    }
-  };
 
   return (
     <>
@@ -101,11 +110,16 @@ const Admin = () => {
             </div>
 
             <button
-              type="submit"
-              className="w-full mt-4 bg-(--rose) text-white py-3 rounded-2xl hover:bg-(--rose)/90 transition"
-            >
-              Login as Admin
-            </button>
+  type="submit"
+  disabled={isLoggingIn}
+  className={`w-full mt-4 py-3 rounded-2xl text-white transition
+    ${isLoggingIn
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-(--rose) hover:bg-(--rose)/90"}`}
+>
+  {isLoggingIn ? "Logging in..." : "Login as Admin"}
+</button>
+
           </form>
 
           {/* Footer note */}
